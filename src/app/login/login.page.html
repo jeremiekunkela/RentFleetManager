@@ -1,13 +1,39 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>login</ion-title>
+    <ion-title>Connexion</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">login</ion-title>
+      <ion-title size="large">Connexion</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <div class="login-container">
+    <!-- Champ pour l'email -->
+    <ion-item>
+      <ion-label position="floating">Email</ion-label>
+      <ion-input type="email" [(ngModel)]="user.email" required></ion-input>
+    </ion-item>
+
+    <!-- Champ pour le mot de passe -->
+    <ion-item>
+      <ion-label position="floating">Mot de passe</ion-label>
+      <ion-input type="password" [(ngModel)]="user.password" required></ion-input>
+    </ion-item>
+
+    <!-- Bouton de connexion -->
+    <ion-button expand="full" (click)="login()">Se connecter</ion-button>
+
+    <!-- Message d'erreur -->
+    <ion-text color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-text>
+
+    <!-- Lien pour rediriger vers l'inscription -->
+    <div class="register-link">
+      <ion-text color="medium">Pas encore inscrit ?</ion-text>
+      <a (click)="goToRegistration()">Créer un compte</a>
+    </div>
+  </div>
 </ion-content>

@@ -1,13 +1,68 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>registration</ion-title>
+    <ion-title>Inscription</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">registration</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <form [formGroup]="registerForm"  class="signup-container">
+    <!-- Champ pour le nom d'utilisateur -->
+    <ion-item>
+      <ion-label position="floating">Nom d'utilisateur</ion-label>
+      <ion-input type="text" formControlName="username"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registerForm.get('username')?.touched">
+      {{ getErrorMessage('username') }}
+    </ion-text>
+
+    <!-- Champ pour l'email -->
+    <ion-item>
+      <ion-label position="floating">Email</ion-label>
+      <ion-input type="email" formControlName="email"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registerForm.get('email')?.touched">
+      {{ getErrorMessage('email') }}
+    </ion-text>
+
+    <!-- Champ pour le numéro de téléphone -->
+    <ion-item>
+      <ion-label position="floating">Numéro de téléphone</ion-label>
+      <ion-input type="tel" formControlName="phone"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registerForm.get('phone')?.touched">
+      {{ getErrorMessage('phone') }}
+    </ion-text>
+
+    <!-- Champ pour le mot de passe -->
+    <ion-item>
+      <ion-label position="floating">Mot de passe</ion-label>
+      <ion-input type="password" formControlName="password"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registerForm.get('password')?.touched">
+      {{ getErrorMessage('password') }}
+    </ion-text>
+
+    <!-- Champ pour confirmer le mot de passe -->
+    <ion-item>
+      <ion-label position="floating">Confirmer le mot de passe</ion-label>
+      <ion-input type="password" formControlName="confirmPassword"></ion-input>
+    </ion-item>
+    <ion-text color="danger" *ngIf="registerForm.get('confirmPassword')?.touched">
+      {{ getErrorMessage('confirmPassword') }}
+    </ion-text>
+
+    <!-- Message d'erreur global -->
+    <ion-text color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-text>
+
+    <!-- Bouton d'inscription -->
+    <ion-button expand="full" type="submit" [disabled]="registerForm.invalid" (click)="signUp()">
+      S'inscrire
+    </ion-button>
+
+    <!-- Lien pour rediriger vers la page de connexion -->
+    <div class="login-link">
+      <ion-text color="medium">Déjà inscrit ?</ion-text>
+      <a (click)="goToLogin()">Se connecter</a>
+    </div>
+  </form>
 </ion-content>
