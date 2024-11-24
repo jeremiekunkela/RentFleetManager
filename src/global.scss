@@ -34,4 +34,16 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+// @import '@ionic/angular/css/palettes/dark.system.css';
+/* login.page.scss */
+ion-button.custom-blue {
+    --background: #0095f6; /* Code hexadécimal pour un bleu clair */
+    --border-radius: 50px; /* Rendre le bouton rond si nécessaire */
+    --color: white; /* Texte en blanc */
+  }  
+
+  .custom-toast {
+    color: white; /* Texte en blanc */
+    font-family: Roboto, sans-serif; /* Utiliser la police Roboto */
+    font-size: 16px; /* Taille de la police */
+  }

@@ -5,35 +5,36 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Connexion</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <!-- Formulaire de connexion -->
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="login-container">
+      <!-- Champ pour l'email -->
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input type="email" formControlName="email" required></ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
+        {{ getErrorMessage('email') }}
+      </ion-text>
 
-  <div class="login-container">
-    <!-- Champ pour l'email -->
-    <ion-item>
-      <ion-label position="floating">Email</ion-label>
-      <ion-input type="email" [(ngModel)]="user.email" required></ion-input>
-    </ion-item>
+      <!-- Champ pour le mot de passe -->
+      <ion-item>
+        <ion-label position="floating">Mot de passe</ion-label>
+        <ion-input type="password" formControlName="password" required></ion-input>
+      </ion-item>
+      <ion-text color="danger" *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+        {{ getErrorMessage('password') }}
+      </ion-text>
 
-    <!-- Champ pour le mot de passe -->
-    <ion-item>
-      <ion-label position="floating">Mot de passe</ion-label>
-      <ion-input type="password" [(ngModel)]="user.password" required></ion-input>
-    </ion-item>
+      <!-- Bouton de connexion -->
+      <ion-button expand="full" type="submit" [disabled]="loginForm.invalid" shape="round" class="custom-blue">Se connecter</ion-button>
 
-    <!-- Bouton de connexion -->
-    <ion-button expand="full" (click)="login()">Se connecter</ion-button>
+      <!-- Message d'erreur -->
+      <ion-text color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-text>
 
-    <!-- Message d'erreur -->
-    <ion-text color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-text>
-
-    <!-- Lien pour rediriger vers l'inscription -->
-    <div class="register-link">
-      <ion-text color="medium">Pas encore inscrit ?</ion-text>
-      <a (click)="goToRegistration()">Créer un compte</a>
-    </div>
-  </div>
+      <!-- Lien pour rediriger vers l'inscription -->
+      <div class="register-link">
+        <ion-text color="medium">Pas encore inscrit ?</ion-text>
+        <a (click)="goToRegistration()">Créer un compte</a>
+      </div>
+    </form>
 </ion-content>

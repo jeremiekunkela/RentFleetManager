@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, FormControl, Validators, FormGroup } from '@angular/forms';
-import { AuthenticationService, IUser } from '../services/authentication/auth.service';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from "@ionic/angular";
+import { CommonModule } from '@angular/common';
+import { AuthenticationService, IUser } from '../services/authentication/auth.service';
 import { Router } from '@angular/router';
+import { ToastController } from "@ionic/angular";
 
 @Component({
   selector: 'app-login',
@@ -13,10 +14,11 @@ import { Router } from '@angular/router';
   imports: [
     CommonModule, 
     FormsModule, 
-    IonicModule
-  ]
+    IonicModule,
+    ReactiveFormsModule
+  ],
+  providers: [ToastController]  // Ajoutez ici IonToastController dans les providers
 })
-
 export class LoginPage implements OnInit {
 
   public loginForm = new FormGroup({
@@ -24,30 +26,71 @@ export class LoginPage implements OnInit {
     password: new FormControl('', [Validators.required, Validators.minLength(6)]),
   });
 
+  errorMessage: string = '';
+
+
   user: Partial<IUser> = {
     email: '',
     password: ''
   };
-  errorMessage: string = '';
 
   constructor(
     private authService: AuthenticationService,
-    private router: Router
+    private router: Router,
+    private toastController: ToastController
   ) {}
 
   ngOnInit() {}
 
+  getErrorMessage(field: string): string {
+    const control = this.loginForm.get(field);
+    const errors: { [key: string]: string | (() => string) } = {
+      required: 'Ce champ est requis.',
+      minlength: () => `Minimum ${control?.getError('minlength')?.requiredLength} caractères requis.`,
+      email: 'Adresse email invalide.',
+      pattern: 'Format invalide.',
+    };
+  
+    const errorKey = Object.keys(errors).find(key => control?.hasError(key));
+    if (errorKey) {
+      const error = errors[errorKey];
+      return typeof error === 'function' ? error() : error;
+    }
+    return '';
+  }
 
+  validateLoginForm(): boolean {
+    this.errorMessage = '';
+  
+    if (this.loginForm.invalid) {
+      this.errorMessage = 'Veuillez remplir tous les champs correctement.';
+      return false;
+    }
+  
+    return true;
+  }
 
   async login() {
-    this.errorMessage = '';
     try {
       await this.authService.signInWithEmailAndPassword(this.user);
       this.router.navigate(['/car-list']);
     } catch (error) {
-      this.errorMessage = 'Échec de la connexion. Veuillez vérifier vos identifiants.';
+      // Afficher un toast d'erreur
+      this.presentToast('Échec de la connexion. Veuillez vérifier vos identifiants.', 'warning');
       console.error(error);
     }
+  }
+
+  // Fonction pour afficher un toast d'erreur
+  async presentToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 10000, // Durée d'affichage du toast
+      color: color,  // Choix de la couleur (par ex. 'danger' pour une erreur)
+      position: 'top',  // Position du toast
+      cssClass: 'custom-toast'  
+    });
+    toast.present();
   }
 
   goToRegistration() {

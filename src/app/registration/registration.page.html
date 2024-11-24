@@ -5,6 +5,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
   <form [formGroup]="registerForm"  class="signup-container">
     <!-- Champ pour le nom d'utilisateur -->
     <ion-item>
@@ -55,7 +56,7 @@
     <ion-text color="danger" *ngIf="errorMessage">{{ errorMessage }}</ion-text>
 
     <!-- Bouton d'inscription -->
-    <ion-button expand="full" type="submit" [disabled]="registerForm.invalid" (click)="signUp()">
+    <ion-button expand="full" shape="round" type="submit" [disabled]="registerForm.invalid" (click)="signUp()" class="custom-blue">
       S'inscrire
     </ion-button>
 

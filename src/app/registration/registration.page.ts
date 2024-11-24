@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IonicModule } from "@ionic/angular";
+import { IonicModule, ToastController } from "@ionic/angular";
 import { CommonModule } from '@angular/common';
 import { AuthenticationService, IUser } from '../services/authentication/auth.service';
 import { Router } from '@angular/router';
@@ -35,7 +35,8 @@ export class RegistrationPage implements OnInit {
 
   constructor(
     private authService: AuthenticationService,
-    private router: Router
+    private router: Router,
+    private toastController: ToastController  // Ajout du ToastController
   ) {}
 
   ngOnInit() {}
@@ -45,66 +46,77 @@ export class RegistrationPage implements OnInit {
     this.router.navigate(['login']);
   }
 
-private validateSignUpForm(): boolean {
-  this.errorMessage = '';
+  private validateSignUpForm(): boolean {
+    this.errorMessage = '';
 
-  const password = this.registerForm.get('password')?.value;
-  const confirmPassword = this.registerForm.get('confirmPassword')?.value;
+    const password = this.registerForm.get('password')?.value;
+    const confirmPassword = this.registerForm.get('confirmPassword')?.value;
 
-  if (password !== confirmPassword) {
-    this.errorMessage = 'Les mots de passe ne correspondent pas.';
-    return false;
-  }
-
-  if (this.registerForm.invalid) {
-    this.errorMessage = 'Veuillez remplir tous les champs correctement.';
-    return false;
-  }
-
-  return true;
-}
-
-async signUp(): Promise<void> {
-
-  const isValid = this.validateSignUpForm();
-  if (!isValid) {
-    return;
-  }
-
-  try {
-    const isRegistered = await this.authService.signUpWithEmailAndPassword(this.registerForm.value as unknown as IUser);
-    if (isRegistered) {
-      this.goToLogin();
+    if (password !== confirmPassword) {
+      this.errorMessage = 'Les mots de passe ne correspondent pas.';
+      return false;
     }
-  } catch (error: unknown) {
-    console.log('error', error);
-    if(error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
-      this.errorMessage = 'Cet email est déjà utilisé.';
+
+    if (this.registerForm.invalid) {
+      this.errorMessage = 'Veuillez remplir tous les champs correctement.';
+      return false;
+    }
+
+    return true;
+  }
+
+  async signUp(): Promise<void> {
+
+    const isValid = this.validateSignUpForm();
+    if (!isValid) {
       return;
     }
-    this.errorMessage = 'Échec de l\'inscription. Veuillez vérifier les informations saisies.';
-    console.error(error);
+
+    try {
+      const isRegistered = await this.authService.signUpWithEmailAndPassword(this.registerForm.value as unknown as IUser);
+      if (isRegistered) {
+        this.presentToast('Inscription réussie !', 'success'); // Toast de succès
+        this.goToLogin();
+      }
+    } catch (error: unknown) {
+      console.log('error', error);
+      if(error instanceof FirebaseError && error.code === 'auth/email-already-in-use') {
+        this.errorMessage = 'Cet email est déjà utilisé.';
+        this.presentToast('Cet email est déjà utilisé.', 'warning'); // Toast d'erreur
+        return;
+      }
+      this.errorMessage = 'Échec de l\'inscription. Veuillez vérifier les informations saisies.';
+      this.presentToast('Échec de l\'inscription. Veuillez vérifier les informations saisies.', 'danger'); // Toast d'erreur
+      console.error(error);
+    }
+  }
+
+  // Fonction pour afficher un toast
+  async presentToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000, // Durée d'affichage du toast
+      color: color,  // Couleur du toast (ex: 'success' ou 'danger')
+      position: 'top',  // Position du toast
+      cssClass: 'custom-toast' // Classe CSS pour le style du toast
+    });
+    toast.present();
+  }
+
+  getErrorMessage(field: string): string {
+    const control = this.registerForm.get(field);
+    const errors: { [key: string]: string | (() => string) } = {
+      required: 'Ce champ est requis.',
+      minlength: () => `Minimum ${control?.getError('minlength')?.requiredLength} caractères requis.`,
+      email: 'Adresse email invalide.',
+      pattern: 'Format invalide.',
+    };
+
+    const errorKey = Object.keys(errors).find(key => control?.hasError(key));
+    if (errorKey) {
+      const error = errors[errorKey];
+      return typeof error === 'function' ? error() : error;
+    }
+    return '';
   }
 }
-
-
-getErrorMessage(field: string): string {
-  const control = this.registerForm.get(field);
-  const errors: { [key: string]: string | (() => string) } = {
-    required: 'Ce champ est requis.',
-    minlength: () => `Minimum ${control?.getError('minlength')?.requiredLength} caractères requis.`,
-    email: 'Adresse email invalide.',
-    pattern: 'Format invalide.',
-  };
-
-  const errorKey = Object.keys(errors).find(key => control?.hasError(key));
-  if (errorKey) {
-    const error = errors[errorKey];
-    return typeof error === 'function' ? error() : error;
-  }
-  return '';
-}
-
-
-}
-
